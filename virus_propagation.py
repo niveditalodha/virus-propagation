@@ -101,8 +101,8 @@ def simulation(beta, delta, matrix, number_of_nodes, policy_type=""):
             number_of_infected_population.append(len(current_infected))
             random_infected_population = current_infected
         plot_series.append(number_of_infected_population)
-    plot_simulation(plot_series, number_of_nodes, '{} Simulation with beta = {} and delta = {} '.format(
-        policy_type, beta1, delta1))
+    plot_simulation(plot_series, number_of_nodes, '{} Simulation with beta = {} and delta = {}'.format(
+        policy_type, beta, delta))
     return number_of_infected_population
 
 
@@ -274,7 +274,7 @@ def main():
     # Simulating virus propagation with SIS virus propagation model for beta 1 and delta 1
     simulation(beta1, delta1, matrix, no_of_nodes)
 
-    # Simulating virus propagation with SIS virus propagation model for beta 1 and delta 1
+    # Simulating virus propagation with SIS virus propagation model for beta 2 and delta 2
     simulation(beta2, delta2, matrix, no_of_nodes)
 
     # Immunization using all policies and calculating its effective strength and its simulation
