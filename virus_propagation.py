@@ -144,11 +144,11 @@ def policyA(matrix_policyA, number_of_nodes, simulate = False, k=200):
             matrix_policyA[node][i] = 0
             matrix_policyA[i][node] = 0
     
-    calculate_effective_strength(matrix_policyA)
+    max_eigen_val = calculate_effective_strength(matrix_policyA)
     if simulate:
         print("Simulation for Policy A")
         simulation(beta1, delta1, matrix_policyA, number_of_nodes, 'Policy A')
-    return matrix_policyA
+    return max_eigen_val
 
 def policyB(matrix_policyB, g, simulate=False, k=200):
     print("\nImmunization using Policy B, k={}".format(k))
@@ -161,11 +161,11 @@ def policyB(matrix_policyB, g, simulate=False, k=200):
         for i in range(len(matrix_policyB[node])):
             matrix_policyB[node][i] = 0
             matrix_policyB[i][node] = 0
-    calculate_effective_strength(matrix_policyB)
+    max_eigen_val = calculate_effective_strength(matrix_policyB)
     if simulate:
         print("Simulation for Policy B")
         simulation(beta1, delta1, matrix_policyB, nx.number_of_nodes(g), 'Policy B')
-    return matrix_policyB
+    return max_eigen_val
 
 
 def policyC(g, simulate=False, k=200):
@@ -181,11 +181,11 @@ def policyC(g, simulate=False, k=200):
     for i in nx.edges(g):
         matrix_policyC[i[0]][i[1]] = 1
         matrix_policyC[i[1]][i[0]] = 1
-    calculate_effective_strength(matrix_policyC)
+    max_eigen_val = calculate_effective_strength(matrix_policyC)
     if simulate:
         print("Simulation for Policy C")
         simulation(beta1, delta1, matrix_policyC, number_of_nodes, 'Policy C')
-    return matrix_policyC
+    return max_eigen_val
 
 def policyD(matrixD, g, simulate = False, k=200):
     print("\nImmunization using Policy D, k={}".format(k))
@@ -202,11 +202,11 @@ def policyD(matrixD, g, simulate = False, k=200):
     for i in nx.edges(g):
         matrix_policyD[i[0]][i[1]] = 1
         matrix_policyD[i[1]][i[0]] = 1
-    calculate_effective_strength(matrix_policyD)
+    max_eigen_val = calculate_effective_strength(matrix_policyD)
     if simulate:
         print("Simulation for Policy D")
         simulation(beta1, delta1, matrix_policyD, number_of_nodes, 'Policy D')
-    return matrix_policyD
+    return max_eigen_val
 
 
 def calculate_minimum_vaccines(matrix, graph, policy_type):
@@ -215,21 +215,20 @@ def calculate_minimum_vaccines(matrix, graph, policy_type):
     number_vaccines = list()
     flag = 1
     while flag:
-        number_vaccines.append(100 if not number_vaccines else number_vaccines[-1] + 100)
+        if not number_vaccines:
+            number_vaccines = [100]
+        else:
+            number_vaccines.append(number_vaccines[-1] + 100)
         k = number_vaccines[-1]
         if policy_type == 'A':
-            updated_matrix = policyA(matrix.copy(), nx.number_of_nodes(graph), k=k)
+            max_eigen_val = policyA(matrix.copy(), nx.number_of_nodes(graph), k=k)
         elif policy_type == 'B':
-            updated_matrix = policyB(matrix.copy(), graph.copy(), k=k)
+            max_eigen_val = policyB(matrix.copy(), graph.copy(), k=k)
         elif policy_type == 'C':
-            updated_matrix = policyC(graph.copy(), k=k)
+            max_eigen_val = policyC(graph.copy(), k=k)
         elif policy_type == 'D':
-            updated_matrix = policyD(matrix.copy(), graph.copy(), k=k)
-        eigen_value, eigen_vector = np.linalg.eig(updated_matrix)
-        eigen_set = [(eigen_value[i], eigen_vector[i]) for i in range(len(eigen_value))]
-        eigen_set = sorted(eigen_set, key=lambda x: x[0], reverse=1)
-        max_val = eigen_set[0][0].real
-        strength = max_val * cvpm1
+            max_eigen_val = policyD(matrix.copy(), graph.copy(), k=k)
+        strength = max_eigen_val * cvpm1
         if strength < 1:
             flag = 0
         strengths.append(strength)
